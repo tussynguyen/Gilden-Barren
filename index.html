@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gilded Barren</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading/Menu Screen -->
+    <div id="menu-screen" class="screen active">
+        <!-- Moon -->
+        <div class="moon"></div>
+        
+        <!-- Stars -->
+        <div class="stars">
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+        </div>
+        
+        <!-- Desert Ground -->
+        <div class="desert-ground"></div>
+        
+        <!-- Pyramids -->
+        <div class="pyramid pyramid-1"></div>
+        <div class="pyramid pyramid-2"></div>
+        <div class="pyramid pyramid-3"></div>
+        <div class="pyramid pyramid-4"></div>
+        
+        <!-- Desert Character -->
+        <div class="desert-character">
+            <img src="images/main character.png" alt="Main Character" class="character-image">
+        </div>
+        
+        <div class="menu-container">
+            <h1 class="game-title">Gilded Barren</h1>
+            <div class="menu-buttons">
+                <button id="start-btn" class="menu-btn">Start Game</button>
+                <button id="instructions-btn" class="menu-btn">Instructions</button>
+                <button id="scores-btn" class="menu-btn">Top Scores</button>
+                <button id="exit-btn" class="menu-btn">Exit</button>
+            </div>
+        </div>
+        
+        <!-- Charity Water Logo -->
+        <div class="charity-logo">
+            <img src="images/CHARITY WATER LOGO. png.png" alt="charity: water" class="logo-image">
+        </div>
+    </div>
+
+    <!-- Instructions Screen -->
+    <div id="instructions-screen" class="screen">
+        <div class="instructions-container">
+            <h2>Instructions</h2>
+            <div class="instructions-content">
+                <h3>Objective:</h3>
+                <p>Collect water droplets to fill the pond at the end of the game!</p>
+                
+                <h3>Controls:</h3>
+                <p><strong>Keyboard:</strong> Use arrow keys to move, spacebar to jump</p>
+                <p><strong>Mobile:</strong> Use on-screen controls</p>
+                
+                <h3>Scoring:</h3>
+                <p>• Water droplets: +3 points</p>
+                <p>• Insects: -5 points (avoid them!)</p>
+                
+                <h3>Game Features:</h3>
+                <p>• 1-minute timer</p>
+                <p>• Day/night cycle at halfway point</p>
+                <p>• Health system</p>
+            </div>
+            <button id="back-to-menu" class="menu-btn">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- Scores Screen -->
+    <div id="scores-screen" class="screen">
+        <div class="scores-container">
+            <h2>Top Scores</h2>
+            <div id="scores-list" class="scores-list">
+                <!-- Scores will be populated by JavaScript -->
+            </div>
+            <button id="back-to-menu-scores" class="menu-btn">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <!-- Game UI -->
+        <div class="game-ui">
+            <div class="ui-left">
+                <div class="score">Score: <span id="score">0</span></div>
+                <div class="health">
+                    Health: 
+                    <div class="health-bar">
+                        <div id="health-fill" class="health-fill"></div>
+                    </div>
+                    <span id="health-text">100</span>
+                </div>
+            </div>
+            <div class="ui-center">
+                <div class="timer">Time: <span id="timer">1:00</span></div>
+            </div>
+            <div class="ui-right">
+                <div class="water-collected">Water: <span id="water-count">0</span></div>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="game-canvas" width="800" height="400"></canvas>
+
+        <!-- Mobile Controls -->
+        <div id="mobile-controls" class="mobile-controls">
+            <div class="control-left">
+                <button id="left-btn" class="control-btn">←</button>
+                <button id="right-btn" class="control-btn">→</button>
+            </div>
+            <div class="control-right">
+                <button id="jump-btn" class="control-btn jump">Jump</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="screen">
+        <div class="game-over-container">
+            <h2 id="game-over-title">You Have Died!</h2>
+            <div class="game-over-stats">
+                <p>Final Score: <span id="final-score">0</span></p>
+                <p>Water Collected: <span id="final-water">0</span></p>
+                <p>Time Survived: <span id="time-survived">0:00</span></p>
+            </div>
+            <div class="game-over-buttons">
+                <button id="restart-btn" class="menu-btn">Restart</button>
+                <button id="home-btn" class="menu-btn">Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Screen -->
+    <div id="win-screen" class="screen">
+        <div class="win-container">
+            <div class="confetti-container">
+                <!-- Confetti will be generated by JavaScript -->
+            </div>
+            <h2 id="win-title">🎉 Victory! 🎉</h2>
+            <p class="win-message">You survived the desert and collected precious water!</p>
+            <div class="win-stats">
+                <p>Final Score: <span id="win-final-score">0</span></p>
+                <p>Water Collected: <span id="win-final-water">0</span></p>
+                <p>Perfect Survival: <span id="win-time-survived">1:00</span></p>
+            </div>
+            <div class="win-buttons">
+                <button id="win-restart-btn" class="menu-btn">Play Again</button>
+                <button id="win-home-btn" class="menu-btn">Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

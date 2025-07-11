@@ -1,0 +1,885 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Proxima Nova Black', sans-serif;
+    background: linear-gradient(135deg, #ffc907 0%, #fed8c1 100%);
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Desert night sky background for menu */
+#menu-screen {
+    background: linear-gradient(180deg, #2a1a4a 0%, #1e2a5e 40%, #003366 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Screen Management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Menu Screen */
+.menu-container {
+    text-align: center;
+    color: white;
+    position: relative;
+    z-index: 10;
+    background: none;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    padding: 2rem;
+}
+
+/* Remove the old pseudo-elements */
+#menu-screen::before,
+#menu-screen::after {
+    display: none;
+}
+
+/* Large moon */
+.moon {
+    position: absolute;
+    top: 60px;
+    right: 200px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle at 35% 25%, #f8f0d8, #e6d19c);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 50px rgba(248, 240, 216, 0.3),
+        inset -20px -20px 0 rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+/* Desert ground with dunes */
+.desert-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 250px;
+    background: linear-gradient(180deg, transparent 0%, #c49b61 20%, #b8956a 100%);
+    z-index: 1;
+}
+
+.desert-ground::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(180, 149, 106, 0.5) 20%, 
+        rgba(196, 155, 97, 0.8) 50%, 
+        rgba(180, 149, 106, 0.5) 80%, 
+        transparent 100%);
+}
+
+/* Stars - more scattered and varied */
+.stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 5s infinite alternate;
+}
+
+/* More stars with varied positioning */
+.star:nth-child(1) { top: 8%; left: 15%; width: 3px; height: 3px; }
+.star:nth-child(2) { top: 12%; left: 25%; width: 2px; height: 2px; animation-delay: 0.5s; }
+.star:nth-child(3) { top: 18%; left: 70%; width: 3px; height: 3px; animation-delay: 1s; }
+.star:nth-child(4) { top: 25%; left: 10%; width: 2px; height: 2px; animation-delay: 1.5s; }
+.star:nth-child(5) { top: 20%; left: 85%; width: 2px; height: 2px; animation-delay: 0.8s; }
+.star:nth-child(6) { top: 35%; left: 60%; width: 3px; height: 3px; animation-delay: 0.3s; }
+.star:nth-child(7) { top: 30%; left: 5%; width: 2px; height: 2px; animation-delay: 1.2s; }
+.star:nth-child(8) { top: 40%; left: 35%; width: 2px; height: 2px; animation-delay: 0.7s; }
+.star:nth-child(9) { top: 15%; left: 45%; width: 2px; height: 2px; animation-delay: 2s; }
+.star:nth-child(10) { top: 22%; left: 90%; width: 3px; height: 3px; animation-delay: 1.8s; }
+.star:nth-child(11) { top: 50%; left: 20%; width: 2px; height: 2px; animation-delay: 0.4s; }
+.star:nth-child(12) { top: 55%; left: 75%; width: 3px; height: 3px; animation-delay: 1.1s; }
+.star:nth-child(13) { top: 70%; left: 40%; width: 2px; height: 2px; animation-delay: 0.9s; }
+.star:nth-child(14) { top: 80%; left: 60%; width: 3px; height: 3px; animation-delay: 1.4s; }
+.star:nth-child(15) { top: 65%; left: 80%; width: 2px; height: 2px; animation-delay: 0.6s; }
+.star:nth-child(16) { top: 75%; left: 30%; width: 3px; height: 3px; animation-delay: 1.3s; }
+/* Twinkle animation for stars */
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+/* Pyramids/Mountains - matching the image */
+.pyramid {
+    position: absolute;
+    bottom: 100px;
+    z-index: 3;
+}
+
+/* Right side pyramids (existing) */
+.pyramid-1 {
+    right: 100px;
+    width: 0;
+    height: 0;
+    border-left: 80px solid transparent;
+    border-right: 80px solid transparent;
+    border-bottom: 120px solid #d4a574;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.3));
+}
+
+.pyramid-1::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -80px;
+    width: 0;
+    height: 0;
+    border-left: 80px solid transparent;
+    border-right: 80px solid transparent;
+    border-bottom: 120px solid #b8956a;
+    transform: translateX(40px);
+}
+
+.pyramid-2 {
+    right: 30px;
+    width: 0;
+    height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 90px solid #d4a574;
+    filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.3));
+}
+
+.pyramid-2::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60px;
+    width: 0;
+    height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 90px solid #b8956a;
+    transform: translateX(30px);
+}
+
+/* Left side pyramids (new) */
+.pyramid-3 {
+    left: 100px;
+    width: 0;
+    height: 0;
+    border-left: 70px solid transparent;
+    border-right: 70px solid transparent;
+    border-bottom: 100px solid #d4a574;
+    filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.3));
+}
+
+.pyramid-3::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -70px;
+    width: 0;
+    height: 0;
+    border-left: 70px solid transparent;
+    border-right: 70px solid transparent;
+    border-bottom: 100px solid #b8956a;
+    transform: translateX(35px);
+}
+
+.pyramid-4 {
+    left: 30px;
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-bottom: 75px solid #d4a574;
+    filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.3));
+}
+
+.pyramid-4::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50px;
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-bottom: 75px solid #b8956a;
+    transform: translateX(25px);
+}
+
+/* Character positioning to match image */
+.desert-character {
+    position: absolute;
+    bottom: 150px;
+    right: 340px;
+    width: 64px;
+    height: 64px;
+    z-index: 4;
+    animation: float 3s ease-in-out infinite;
+}
+
+.character-image {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* ...existing code... */
+
+.game-title {
+    font-size: 3rem;
+    color: white;
+    margin-bottom: 2rem;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: flex-start;
+    margin-left: 2rem;
+}
+
+.menu-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.3rem;
+    background: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+    text-align: left;
+    position: relative;
+}
+
+.menu-btn::before {
+    content: '▷';
+    margin-right: 1rem;
+    font-size: 1.2em;
+}
+
+.menu-btn:hover {
+    color: #ffc907;
+    transform: translateX(10px);
+    text-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+}
+
+/* Instructions Screen */
+.instructions-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.instructions-content h3 {
+    color: #003366;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.instructions-content p {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+/* Scores Screen */
+.scores-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    min-width: 400px;
+}
+
+.scores-list {
+    margin: 1rem 0;
+    min-height: 200px;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Game Screen */
+#game-screen {
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.game-ui {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.ui-left, .ui-center, .ui-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.score, .health, .timer, .water-collected {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.health-bar {
+    width: 100px;
+    height: 20px;
+    background: #e74c3c;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 0.5rem;
+    display: inline-block;
+}
+
+.health-fill {
+    height: 100%;
+    background: #27ae60;
+    width: 100%;
+    transition: width 0.3s ease;
+}
+
+/* Game Canvas */
+#game-canvas {
+    border: 3px solid #34495e;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, #87CEEB 0%, #F4A460 50%, #DEB887 100%);
+}
+
+/* Mobile Controls */
+.mobile-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 1rem;
+}
+
+.control-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(52, 73, 94, 0.8);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: rgba(52, 73, 94, 1);
+    transform: scale(1.1);
+}
+
+.control-btn.jump {
+    background: rgba(231, 76, 60, 0.8);
+}
+
+.control-btn.jump:hover {
+    background: rgba(231, 76, 60, 1);
+}
+
+.control-left {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Game Over Screen */
+.game-over-container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.game-over-stats {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+}
+
+.game-over-stats p {
+    margin: 0.5rem 0;
+}
+
+.game-over-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.game-over-buttons .menu-btn {
+    background: #34495e;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: bold;
+    /* Removed hover effects */
+}
+
+/* Charity Water Logo */
+.charity-logo {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.charity-logo:hover {
+    opacity: 1;
+}
+
+.logo-image {
+    height: 60px; /* Increased from 40px */
+    width: auto;
+    filter: brightness(1.2) contrast(1.1);
+}
+
+/* Add depth to pyramids with gradients */
+.pyramid-1, .pyramid-2, .pyramid-3, .pyramid-4 {
+    filter: drop-shadow(10px 10px 20px rgba(0, 0, 0, 0.3));
+}
+
+/* Day/Night Cycle Classes */
+.day-mode {
+    background: linear-gradient(to bottom, #87CEEB 0%, #F4A460 50%, #DEB887 100%);
+}
+
+.night-mode {
+    background: linear-gradient(to bottom, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+}
+
+/* Animation for water droplets */
+@keyframes water-drop {
+    0% { transform: translateY(-10px) scale(1); }
+    50% { transform: translateY(0) scale(1.1); }
+    100% { transform: translateY(-10px) scale(1); }
+}
+
+/* Animation for insects */
+@keyframes insect-move {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-20px); }
+}
+
+/* Gentle floating animation for character */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+}
+
+.desert-character {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Menu container glow effect */
+.menu-container {
+    box-shadow: 
+        0 10px 25px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Additional atmospheric elements */
+#menu-screen {
+    background: 
+        radial-gradient(ellipse at 80% 20%, rgba(244, 241, 222, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #533483 100%);
+}
+
+/* Win Screen */
+.win-container {
+    text-align: center;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(255, 215, 0, 0.4);
+    border: 3px solid #ffd700;
+    position: relative;
+    overflow: hidden;
+}
+
+.win-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+    animation: winGlow 2s ease-in-out infinite alternate;
+}
+
+#win-title {
+    font-size: 2.5rem;
+    color: #8b4513;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: winBounce 1s ease-out;
+}
+
+.win-message {
+    font-size: 1.2rem;
+    color: #8b4513;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.win-stats {
+    margin: 1.5rem 0;
+    font-size: 1.1rem;
+    color: #8b4513;
+}
+
+.win-stats p {
+    margin: 0.5rem 0;
+    font-weight: bold;
+}
+
+.win-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.win-buttons .menu-btn {
+    background: #8b4513;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: bold;
+    /* Removed hover effects */
+}
+
+/* Confetti Container */
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffd700;
+    border-radius: 50%;
+    animation: confettiFall 3s linear infinite;
+}
+
+.confetti:nth-child(odd) {
+    background: #ff6b6b;
+    border-radius: 0;
+}
+
+.confetti:nth-child(3n) {
+    background: #4ecdc4;
+    transform: rotate(45deg);
+}
+
+.confetti:nth-child(4n) {
+    background: #45b7d1;
+    border-radius: 50%;
+}
+
+.confetti:nth-child(5n) {
+    background: #96ceb4;
+    border-radius: 0;
+}
+
+/* Confetti Animations */
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+@keyframes winGlow {
+    0% { opacity: 0.5; }
+    100% { opacity: 0.8; }
+}
+
+@keyframes winBounce {
+    0% {
+        transform: scale(0.3) rotate(-10deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* Responsive design for win screen */
+@media (max-width: 768px) {
+    .win-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    #win-title {
+        font-size: 2rem;
+    }
+    
+    .win-message {
+        font-size: 1rem;
+    }
+    
+    .win-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .win-buttons .menu-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .moon {
+        right: 150px;
+        width: 150px;
+        height: 150px;
+    }
+    
+    .desert-character {
+        right: 280px;
+        width: 56px;
+        height: 56px;
+    }
+    
+    .pyramid-1 {
+        right: 80px;
+        border-left-width: 60px;
+        border-right-width: 60px;
+        border-bottom: 90px solid #d4a574;
+    }
+    
+    .pyramid-2 {
+        right: 20px;
+        border-left-width: 45px;
+        border-right-width: 45px;
+        border-bottom: 70px solid #d4a574;
+    }
+    
+    .pyramid-3 {
+        left: 80px;
+        border-left-width: 55px;
+        border-right-width: 55px;
+        border-bottom: 80px solid #d4a574;
+    }
+    
+    .pyramid-4 {
+        left: 20px;
+        border-left-width: 40px;
+        border-right-width: 40px;
+        border-bottom: 60px solid #d4a574;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .menu-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .menu-buttons {
+        align-items: center;
+        margin-left: 0;
+    }
+    
+    .menu-btn {
+        font-size: 1.1rem;
+        padding: 0.8rem 2rem;
+        text-align: center;
+    }
+    
+    /* Mobile layout adjustments */
+    .moon {
+        top: 40px;
+        right: 20px;
+        width: 100px;
+        height: 100px;
+    }
+    
+    .desert-character {
+        bottom: 120px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 48px;
+        height: 48px;
+    }
+    
+    /* Simplify pyramids for mobile */
+    .pyramid-1, .pyramid-2 {
+        display: block;
+    }
+    
+    .pyramid-3, .pyramid-4 {
+        display: none; /* Hide left pyramids on mobile for cleaner look */
+    }
+    
+    .pyramid-1 {
+        right: 40px;
+        border-left-width: 40px;
+        border-right-width: 40px;
+        border-bottom: 60px solid #d4a574;
+    }
+    
+    .pyramid-2 {
+        right: 10px;
+        border-left-width: 30px;
+        border-right-width: 30px;
+        border-bottom: 45px solid #d4a574;
+    }
+    
+    /* Reduce stars for performance on mobile */
+    .star:nth-child(n+11) {
+        display: none;
+    }
+    
+    .game-ui {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    .ui-left, .ui-center, .ui-right {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    #game-canvas {
+        width: 100%;
+        max-width: 100vw;
+        height: auto;
+        border-width: 2px;
+    }
+    
+    .mobile-controls {
+        margin-top: 0.5rem;
+        padding: 0 1rem;
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .charity-logo {
+        bottom: 20px;
+    }
+    
+    .logo-image {
+        height: 45px; /* Increased from 30px for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    /* ...existing responsive rules... */
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    /* ...existing responsive rules... */
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .character-image {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: pixelated;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .menu-btn {
+        padding: 1rem 2rem;
+        min-height: 44px;
+    }
+    
+    .control-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .menu-btn:hover {
+        transform: none;
+    }
+}
