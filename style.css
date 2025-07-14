@@ -388,6 +388,51 @@ body {
     transition: width 0.3s ease;
 }
 
+/* Night Mode Announcement */
+.night-announcement {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(44, 62, 80, 0.95);
+    color: #f39c12;
+    padding: 1.5rem 3rem;
+    border-radius: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 2px solid #f39c12;
+    animation: nightModeSlideIn 0.5s ease-out;
+}
+
+.night-announcement.hidden {
+    display: none;
+}
+
+@keyframes nightModeSlideIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes nightModeSlideOut {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
 /* Game Canvas */
 #game-canvas {
     border: 3px solid #34495e;
@@ -514,12 +559,12 @@ body {
 }
 
 .logo-image {
-    height: 120px; /* Increased from 80px to make it more prominent */
+    height: 70px; /* Reduced from 120px */
     width: auto;
     filter: brightness(1.1) contrast(1.1);
     transition: transform 0.3s ease;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .charity-logo:hover .logo-image {
@@ -534,7 +579,7 @@ body {
 }
 
 .charity-mission {
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #2c3e50;
     margin: 0;
@@ -553,20 +598,20 @@ body {
 }
 
 .donate-btn {
-    padding: 1rem 2rem;
-    border-radius: 30px;
+    padding: 0.7rem 1.5rem;
+    border-radius: 25px;
     text-decoration: none;
     font-weight: bold;
-    font-size: 1.1rem;
-    transition: all 0.4s ease;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
     border: 2px solid transparent;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 .donate-btn.primary {
@@ -618,6 +663,26 @@ body {
     color: #6c757d;
     font-style: italic;
     margin: 0;
+}
+
+/* Damage Flash Effect */
+.damage-flash {
+    animation: damageFlash 0.5s ease-out;
+}
+
+@keyframes damageFlash {
+    0% {
+        filter: contrast(1) brightness(1);
+    }
+    25% {
+        filter: contrast(1.5) brightness(1.5) sepia(1) hue-rotate(320deg);
+    }
+    50% {
+        filter: contrast(1.2) brightness(1.2) sepia(0.8) hue-rotate(320deg);
+    }
+    100% {
+        filter: contrast(1) brightness(1);
+    }
 }
 
 /* Add depth to pyramids with gradients */

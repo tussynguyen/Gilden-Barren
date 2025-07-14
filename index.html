@@ -127,11 +127,12 @@
                 <h3>Scoring:</h3>
                 <p>• Water droplets: +3 points</p>
                 <p>• Insects: -5 points (avoid them!)</p>
+                <p>• Ditches: Health damage (stay out!)</p>
                 
                 <h3>Game Features:</h3>
                 <p>• Multiple difficulty modes</p>
                 <p>• Day/night cycle at halfway point</p>
-                <p>• Health system</p>
+                <p>• Health system with hazards</p>
                 <p>• Win by collecting enough water!</p>
             </div>
             <button id="back-to-menu" class="menu-btn">Back to Menu</button>
@@ -174,6 +175,11 @@
 
         <!-- Game Canvas -->
         <canvas id="game-canvas" width="800" height="400"></canvas>
+
+        <!-- Night Mode Announcement -->
+        <div id="night-mode-announcement" class="night-announcement hidden">
+            🌙 Night Mode Activated! 🌙
+        </div>
 
         <!-- Mobile Controls -->
         <div id="mobile-controls" class="mobile-controls">

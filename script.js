@@ -8,6 +8,7 @@ let gameState = {
     isGameRunning: false,
     isNightMode: false,
     difficulty: 'normal',
+    lastDitchDamage: 0, // Timestamp of last ditch damage
     keys: {},
     touchControls: {
         left: false,
@@ -70,6 +71,13 @@ let platforms = [
     { x: 250, y: 360, width: 150, height: 40 },    // Platform with gap
     { x: 450, y: 360, width: 100, height: 40 },    // Small platform
     { x: 600, y: 360, width: 200, height: 40 },    // End platform
+];
+
+// Ditch areas (gaps between platforms)
+let ditches = [
+    { x: 200, y: 360, width: 50, height: 40 },     // First ditch
+    { x: 400, y: 360, width: 50, height: 40 },     // Second ditch  
+    { x: 550, y: 360, width: 50, height: 40 },     // Third ditch
 ];
 
 let waterDroplets = [];
@@ -139,6 +147,21 @@ function playVictorySound() {
     }, 800);
 }
 
+// Night mode announcement
+function showNightModeAnnouncement() {
+    const announcement = document.getElementById('night-mode-announcement');
+    announcement.classList.remove('hidden');
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        announcement.style.animation = 'nightModeSlideOut 0.5s ease-in';
+        setTimeout(() => {
+            announcement.classList.add('hidden');
+            announcement.style.animation = ''; // Reset animation
+        }, 500);
+    }, 2000);
+}
+
 // Screen management
 function showScreen(screenName) {
     const screens = document.querySelectorAll('.screen');
@@ -200,6 +223,7 @@ function initGame() {
     gameState.timeLeft = settings.timeLimit;
     gameState.isGameRunning = true;
     gameState.isNightMode = false;
+    gameState.lastDitchDamage = 0;
     
     // Reset player
     player.x = 100;
@@ -235,6 +259,7 @@ function initGame() {
             gameState.isNightMode = true;
             canvas.classList.remove('day-mode');
             canvas.classList.add('night-mode');
+            showNightModeAnnouncement();
         }
         
         if (gameState.timeLeft <= 0) {
@@ -402,6 +427,52 @@ function updatePlayer() {
         }
     }
     
+    // Check if player is in a ditch (more reliable detection)
+    const currentTime = Date.now();
+    const ditchDamageCooldown = 1000; // 1 second cooldown between ditch damage
+    
+    for (let ditch of ditches) {
+        if (player.x + player.width > ditch.x &&
+            player.x < ditch.x + ditch.width &&
+            player.y + player.height >= ditch.y &&
+            player.y < ditch.y + ditch.height &&
+            currentTime - gameState.lastDitchDamage > ditchDamageCooldown) {
+            
+            // Player is touching a ditch! Damage health
+            const settings = difficultySettings[gameState.difficulty];
+            gameState.health = Math.max(0, gameState.health - settings.healthPenalty);
+            gameState.lastDitchDamage = currentTime;
+            playInsectSound(); // Use same sound as insect damage
+            updateUI();
+            
+            // Add visual damage flash effect
+            const canvas = document.getElementById('game-canvas');
+            canvas.classList.add('damage-flash');
+            setTimeout(() => {
+                canvas.classList.remove('damage-flash');
+            }, 500);
+            
+            // Push player out of ditch area more forcefully
+            if (player.x < ditch.x + ditch.width / 2) {
+                player.x = ditch.x - player.width - 10; // Push left
+                player.velocityX = -3; // Add some push velocity
+            } else {
+                player.x = ditch.x + ditch.width + 10; // Push right
+                player.velocityX = 3; // Add some push velocity
+            }
+            
+            // Add visual feedback - make player bounce up slightly
+            if (player.velocityY >= 0) {
+                player.velocityY = -5; // Small bounce
+            }
+            
+            if (gameState.health <= 0) {
+                endGame();
+            }
+            break; // Only hit one ditch at a time
+        }
+    }
+    
     // Fall death (if player falls below all platforms)
     if (player.y > 450) {
         gameState.health = 0;
@@ -455,11 +526,29 @@ function draw(ctx, canvas) {
         ctx.fillStyle = gameState.isNightMode ? '#34495e' : '#8B4513';
     }
     
-    // Draw ditches/gaps (visual indication)
+    // Draw ditches/gaps (visual indication) 
     ctx.fillStyle = gameState.isNightMode ? '#1a1a1a' : '#654321';
-    ctx.fillRect(200, 360, 50, 40);  // Gap between platforms
-    ctx.fillRect(400, 360, 50, 40);  // Gap between platforms
-    ctx.fillRect(550, 360, 50, 40);  // Gap between platforms
+    for (let ditch of ditches) {
+        ctx.fillRect(ditch.x, ditch.y, ditch.width, ditch.height);
+        
+        // Add danger visual effect
+        ctx.fillStyle = gameState.isNightMode ? '#8b0000' : '#cc4125'; // Dark red
+        ctx.fillRect(ditch.x + 5, ditch.y + 30, ditch.width - 10, 8);
+        
+        // Add spikes or danger indicators
+        ctx.fillStyle = gameState.isNightMode ? '#ff4444' : '#ff6b47';
+        for (let i = 0; i < 3; i++) {
+            const spikeX = ditch.x + 10 + (i * 12);
+            ctx.beginPath();
+            ctx.moveTo(spikeX, ditch.y + 35);
+            ctx.lineTo(spikeX + 5, ditch.y + 25);
+            ctx.lineTo(spikeX + 10, ditch.y + 35);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        ctx.fillStyle = gameState.isNightMode ? '#1a1a1a' : '#654321';
+    }
     
     // Draw player - use image instead of pixel art
     ctx.imageSmoothingEnabled = false;
