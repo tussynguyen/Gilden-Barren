@@ -50,9 +50,65 @@
             </div>
         </div>
         
-        <!-- Charity Water Logo -->
-        <div class="charity-logo">
-            <img src="images/CHARITY WATER LOGO. png.png" alt="charity: water" class="logo-image">
+        <!-- Charity Water Logo & Donation -->
+        <div class="charity-footer">
+            <div class="charity-logo">
+                <img src="images/CHARITY WATER LOGO. png.png" alt="charity: water" class="logo-image">
+            </div>
+            <div class="charity-info">
+                <p class="charity-mission">🌍 Help bring clean water to people in need worldwide 🌍</p>
+                <div class="donation-buttons">
+                    <a href="https://www.charitywater.org/donate" target="_blank" class="donate-btn primary">
+                        💧 Donate Now
+                    </a>
+                    <a href="https://www.charitywater.org/" target="_blank" class="donate-btn secondary">
+                        🌟 Learn More
+                    </a>
+                </div>
+                <p class="charity-note">✨ 100% of public donations fund water projects ✨</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Difficulty Selection Screen -->
+    <div id="difficulty-screen" class="screen">
+        <div class="difficulty-container">
+            <h2>Select Difficulty</h2>
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-difficulty="easy">
+                    <h3>🌱 Easy</h3>
+                    <div class="difficulty-details">
+                        <p><strong>Time:</strong> 90 seconds</p>
+                        <p><strong>Win Condition:</strong> 15 water droplets</p>
+                        <p><strong>Enemy Speed:</strong> Slow</p>
+                        <p><strong>Spawn Rate:</strong> Low</p>
+                    </div>
+                    <button class="difficulty-btn" data-difficulty="easy">Choose Easy</button>
+                </div>
+                
+                <div class="difficulty-option" data-difficulty="normal">
+                    <h3>⚖️ Normal</h3>
+                    <div class="difficulty-details">
+                        <p><strong>Time:</strong> 60 seconds</p>
+                        <p><strong>Win Condition:</strong> 20 water droplets</p>
+                        <p><strong>Enemy Speed:</strong> Normal</p>
+                        <p><strong>Spawn Rate:</strong> Normal</p>
+                    </div>
+                    <button class="difficulty-btn" data-difficulty="normal">Choose Normal</button>
+                </div>
+                
+                <div class="difficulty-option" data-difficulty="hard">
+                    <h3>🔥 Hard</h3>
+                    <div class="difficulty-details">
+                        <p><strong>Time:</strong> 45 seconds</p>
+                        <p><strong>Win Condition:</strong> 25 water droplets</p>
+                        <p><strong>Enemy Speed:</strong> Fast</p>
+                        <p><strong>Spawn Rate:</strong> High</p>
+                    </div>
+                    <button class="difficulty-btn" data-difficulty="hard">Choose Hard</button>
+                </div>
+            </div>
+            <button id="back-to-menu-difficulty" class="menu-btn">Back to Menu</button>
         </div>
     </div>
 
@@ -62,7 +118,7 @@
             <h2>Instructions</h2>
             <div class="instructions-content">
                 <h3>Objective:</h3>
-                <p>Collect water droplets to fill the pond at the end of the game!</p>
+                <p>Collect water droplets to survive and reach the win condition!</p>
                 
                 <h3>Controls:</h3>
                 <p><strong>Keyboard:</strong> Use arrow keys to move, spacebar to jump</p>
@@ -73,9 +129,10 @@
                 <p>• Insects: -5 points (avoid them!)</p>
                 
                 <h3>Game Features:</h3>
-                <p>• 1-minute timer</p>
+                <p>• Multiple difficulty modes</p>
                 <p>• Day/night cycle at halfway point</p>
                 <p>• Health system</p>
+                <p>• Win by collecting enough water!</p>
             </div>
             <button id="back-to-menu" class="menu-btn">Back to Menu</button>
         </div>
@@ -110,7 +167,8 @@
                 <div class="timer">Time: <span id="timer">1:00</span></div>
             </div>
             <div class="ui-right">
-                <div class="water-collected">Water: <span id="water-count">0</span></div>
+                <div class="water-collected">Water: <span id="water-count">0</span>/<span id="water-goal">20</span></div>
+                <div class="difficulty-display">Difficulty: <span id="current-difficulty">Normal</span></div>
             </div>
         </div>
 

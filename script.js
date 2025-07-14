@@ -4,14 +4,49 @@ let gameState = {
     score: 0,
     health: 100,
     waterCollected: 0,
-    timeLeft: 60, // 1 minutes in seconds
+    timeLeft: 60, // Will be set based on difficulty
     isGameRunning: false,
     isNightMode: false,
+    difficulty: 'normal',
     keys: {},
     touchControls: {
         left: false,
         right: false,
         jump: false
+    }
+};
+
+// Difficulty settings
+const difficultySettings = {
+    easy: {
+        timeLimit: 90,
+        winCondition: 15,
+        waterSpawnRate: 3000, // Every 3 seconds
+        insectSpawnRate: 4500, // Every 4.5 seconds
+        insectSpeed: -1.2,
+        nightModeStart: 45, // At 45 seconds left
+        healthPenalty: 15,
+        scorePenalty: 3
+    },
+    normal: {
+        timeLimit: 60,
+        winCondition: 20,
+        waterSpawnRate: 2000, // Every 2 seconds
+        insectSpawnRate: 3000, // Every 3 seconds
+        insectSpeed: -1.7,
+        nightModeStart: 30, // At 30 seconds left
+        healthPenalty: 20,
+        scorePenalty: 5
+    },
+    hard: {
+        timeLimit: 45,
+        winCondition: 25,
+        waterSpawnRate: 1500, // Every 1.5 seconds
+        insectSpawnRate: 2000, // Every 2 seconds
+        insectSpeed: -2.5,
+        nightModeStart: 22, // At 22 seconds left
+        healthPenalty: 25,
+        scorePenalty: 7
     }
 };
 
@@ -29,10 +64,20 @@ let player = {
     color: '#e74c3c'
 };
 
+// Platform system for Mario-style gameplay
+let platforms = [
+    { x: 0, y: 360, width: 200, height: 40 },      // Starting platform
+    { x: 250, y: 360, width: 150, height: 40 },    // Platform with gap
+    { x: 450, y: 360, width: 100, height: 40 },    // Small platform
+    { x: 600, y: 360, width: 200, height: 40 },    // End platform
+];
+
 let waterDroplets = [];
 let insects = [];
 let gameInterval;
 let timerInterval;
+let waterSpawnInterval;
+let insectSpawnInterval;
 
 // Audio context for sound effects
 let audioContext;
@@ -74,6 +119,26 @@ function playInsectSound() {
     playSound(200, 0.3, 'sawtooth');
 }
 
+function playVictorySound() {
+    // Play a celebratory sound sequence
+    if (!audioContext) return;
+    
+    // Main victory chord
+    playSound(523, 0.4, 'sine'); // C
+    setTimeout(() => playSound(659, 0.4, 'sine'), 100); // E
+    setTimeout(() => playSound(784, 0.4, 'sine'), 200); // G
+    setTimeout(() => playSound(1047, 0.6, 'sine'), 300); // High C
+    
+    // Add some sparkle
+    setTimeout(() => {
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                playSound(1200 + (i * 100), 0.1, 'sine');
+            }, i * 50);
+        }
+    }, 800);
+}
+
 // Screen management
 function showScreen(screenName) {
     const screens = document.querySelectorAll('.screen');
@@ -89,6 +154,7 @@ function saveScore(score, water, time) {
         score: score,
         water: water,
         time: time,
+        difficulty: gameState.difficulty,
         date: new Date().toLocaleDateString()
     });
     scores.sort((a, b) => b.score - a.score);
@@ -110,6 +176,7 @@ function loadScores() {
             <span>#${index + 1}</span>
             <span>Score: ${score.score}</span>
             <span>Water: ${score.water}</span>
+            <span>${score.difficulty ? score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1) : 'Normal'}</span>
             <span>${score.date}</span>
         </div>
     `).join('');
@@ -123,11 +190,14 @@ function initGame() {
     // Responsive canvas sizing
     resizeCanvas(canvas);
     
+    // Get current difficulty settings
+    const settings = difficultySettings[gameState.difficulty];
+    
     // Reset game state
     gameState.score = 0;
     gameState.health = 100;
     gameState.waterCollected = 0;
-    gameState.timeLeft = 60; // Changed from 180 to 60 seconds (1 minute)
+    gameState.timeLeft = settings.timeLimit;
     gameState.isGameRunning = true;
     gameState.isNightMode = false;
     
@@ -141,6 +211,10 @@ function initGame() {
     // Clear objects
     waterDroplets = [];
     insects = [];
+    
+    // Clear any existing intervals
+    if (waterSpawnInterval) clearInterval(waterSpawnInterval);
+    if (insectSpawnInterval) clearInterval(insectSpawnInterval);
     
     // Update UI
     updateUI();
@@ -156,8 +230,8 @@ function initGame() {
         gameState.timeLeft--;
         updateUI();
         
-        // Switch to night mode at halfway point
-        if (gameState.timeLeft === 30 && !gameState.isNightMode) { // Changed from 90 to 30 seconds
+        // Switch to night mode based on difficulty
+        if (gameState.timeLeft === settings.nightModeStart && !gameState.isNightMode) {
             gameState.isNightMode = true;
             canvas.classList.remove('day-mode');
             canvas.classList.add('night-mode');
@@ -168,9 +242,9 @@ function initGame() {
         }
     }, 1000);
     
-    // Spawn objects
-    setInterval(spawnWaterDroplet, 2000);
-    setInterval(spawnInsect, 3000);
+    // Spawn objects based on difficulty
+    waterSpawnInterval = setInterval(spawnWaterDroplet, settings.waterSpawnRate);
+    insectSpawnInterval = setInterval(spawnInsect, settings.insectSpawnRate);
 }
 
 function spawnWaterDroplet() {
@@ -189,35 +263,28 @@ function spawnWaterDroplet() {
 function spawnInsect() {
     if (!gameState.isGameRunning) return;
     
-    // Generate a random Y position
-    let newY = Math.random() * 100 + 250;
+    // Choose a random platform for the spider to walk on
+    const platform = platforms[Math.floor(Math.random() * platforms.length)];
+    const spiderY = platform.y - 40; // Position spider on top of platform
     
     // Check if there's already a spider too close to this position
-    const minDistance = 80; // Minimum distance between spiders
+    const minDistance = 80;
     const tooClose = insects.some(insect => 
-        Math.abs(insect.y - newY) < minDistance && 
-        insect.x > 600 // Only check spiders that are still relatively close
+        Math.abs(insect.y - spiderY) < minDistance && 
+        insect.x > 600
     );
     
-    // If there's a spider too close, try a different Y position
-    if (tooClose) {
-        // Try 3 different positions
-        for (let attempts = 0; attempts < 3; attempts++) {
-            newY = Math.random() * 100 + 250;
-            const stillTooClose = insects.some(insect => 
-                Math.abs(insect.y - newY) < minDistance && 
-                insect.x > 600
-            );
-            if (!stillTooClose) break;
-        }
-    }
+    if (tooClose) return; // Skip spawning if too close to another spider
+    
+    const settings = difficultySettings[gameState.difficulty];
     
     insects.push({
         x: 850,
-        y: newY,
-        width: 40, // Reduced from 80 to make spiders smaller
-        height: 40, // Reduced from 70 to make spiders smaller
-        velocityX: -1.7, // Reduced from -3 to make spiders slower
+        y: spiderY,
+        width: 40,
+        height: 40,
+        velocityX: settings.insectSpeed,
+        platformY: platform.y, // Track which platform spider is on
         hit: false
     });
 }
@@ -244,6 +311,14 @@ function update() {
             gameState.waterCollected++;
             playWaterSound();
             updateUI();
+            
+            // Check for immediate win condition
+            const settings = difficultySettings[gameState.difficulty];
+            if (gameState.waterCollected >= settings.winCondition) {
+                setTimeout(() => {
+                    endGame();
+                }, 100); // Small delay to let the sound play
+            }
         }
         
         // Remove if off screen
@@ -264,8 +339,9 @@ function update() {
             player.y + player.height > insect.y) {
             
             insect.hit = true;
-            gameState.score = Math.max(0, gameState.score - 5);
-            gameState.health = Math.max(0, gameState.health - 20);
+            const settings = difficultySettings[gameState.difficulty];
+            gameState.score = Math.max(0, gameState.score - settings.scorePenalty);
+            gameState.health = Math.max(0, gameState.health - settings.healthPenalty);
             playInsectSound();
             updateUI();
             
@@ -308,11 +384,28 @@ function updatePlayer() {
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > 800) player.x = 800 - player.width;
     
-    // Ground collision
-    if (player.y + player.height >= 360) {
-        player.y = 360 - player.height;
-        player.velocityY = 0;
-        player.onGround = true;
+    // Platform collision detection
+    player.onGround = false;
+    
+    // Check collision with platforms
+    for (let platform of platforms) {
+        if (player.x < platform.x + platform.width &&
+            player.x + player.width > platform.x &&
+            player.y + player.height >= platform.y &&
+            player.y + player.height <= platform.y + platform.height + 10 &&
+            player.velocityY >= 0) {
+            
+            player.y = platform.y - player.height;
+            player.velocityY = 0;
+            player.onGround = true;
+            break;
+        }
+    }
+    
+    // Fall death (if player falls below all platforms)
+    if (player.y > 450) {
+        gameState.health = 0;
+        endGame();
     }
 }
 
@@ -350,6 +443,23 @@ function draw(ctx, canvas) {
     // Draw ground
     ctx.fillStyle = gameState.isNightMode ? '#34495e' : '#8B4513';
     ctx.fillRect(0, 360, canvas.width, 40);
+    
+    // Draw platforms
+    ctx.fillStyle = gameState.isNightMode ? '#34495e' : '#8B4513';
+    for (let platform of platforms) {
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        
+        // Add platform highlight
+        ctx.fillStyle = gameState.isNightMode ? '#4a5a6e' : '#A0522D';
+        ctx.fillRect(platform.x, platform.y, platform.width, 8);
+        ctx.fillStyle = gameState.isNightMode ? '#34495e' : '#8B4513';
+    }
+    
+    // Draw ditches/gaps (visual indication)
+    ctx.fillStyle = gameState.isNightMode ? '#1a1a1a' : '#654321';
+    ctx.fillRect(200, 360, 50, 40);  // Gap between platforms
+    ctx.fillRect(400, 360, 50, 40);  // Gap between platforms
+    ctx.fillRect(550, 360, 50, 40);  // Gap between platforms
     
     // Draw player - use image instead of pixel art
     ctx.imageSmoothingEnabled = false;
@@ -396,10 +506,14 @@ function draw(ctx, canvas) {
 }
 
 function updateUI() {
+    const settings = difficultySettings[gameState.difficulty];
+    
     document.getElementById('score').textContent = gameState.score;
     document.getElementById('health-text').textContent = gameState.health;
     document.getElementById('health-fill').style.width = gameState.health + '%';
     document.getElementById('water-count').textContent = gameState.waterCollected;
+    document.getElementById('water-goal').textContent = settings.winCondition;
+    document.getElementById('current-difficulty').textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
     
     const minutes = Math.floor(gameState.timeLeft / 60);
     const seconds = gameState.timeLeft % 60;
@@ -410,26 +524,49 @@ function endGame() {
     gameState.isGameRunning = false;
     clearInterval(gameInterval);
     clearInterval(timerInterval);
+    if (waterSpawnInterval) clearInterval(waterSpawnInterval);
+    if (insectSpawnInterval) clearInterval(insectSpawnInterval);
     
     // Save score
-    const timeSurvived = 60 - gameState.timeLeft;
+    const settings = difficultySettings[gameState.difficulty];
+    const timeSurvived = settings.timeLimit - gameState.timeLeft;
     saveScore(gameState.score, gameState.waterCollected, timeSurvived);
     
-    // Check if player won (survived the full minute)
-    if (gameState.timeLeft <= 0 && gameState.health > 0) {
-        // Player won!
-        showWinScreen();
+    // Check win conditions
+    if (gameState.waterCollected >= settings.winCondition) {
+        // Player won by collecting enough water!
+        playVictorySound();
+        showWinScreen('water');
+    } else if (gameState.timeLeft <= 0 && gameState.health > 0) {
+        // Player survived the full time with health - that's also a win!
+        playVictorySound();
+        showWinScreen('survival');
     } else {
-        // Player lost
+        // Player lost (health reached 0 or failed to meet conditions)
         showGameOverScreen();
     }
 }
 
-function showWinScreen() {
-    // Update win screen
+function showWinScreen(winType = 'water') {
+    // Update win screen based on win type
+    const settings = difficultySettings[gameState.difficulty];
     document.getElementById('win-final-score').textContent = gameState.score;
     document.getElementById('win-final-water').textContent = gameState.waterCollected;
-    document.getElementById('win-time-survived').textContent = '1:00';
+    
+    const timeSurvived = settings.timeLimit - gameState.timeLeft;
+    const minutes = Math.floor(timeSurvived / 60);
+    const seconds = timeSurvived % 60;
+    document.getElementById('win-time-survived').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Update message based on win type
+    const winMessage = document.querySelector('.win-message');
+    if (winType === 'water') {
+        document.getElementById('win-title').textContent = '🎉 Victory! 🎉';
+        winMessage.textContent = 'Amazing! You collected enough water to win!';
+    } else if (winType === 'survival') {
+        document.getElementById('win-title').textContent = '🏆 Survivor! 🏆';
+        winMessage.textContent = 'Incredible! You survived the entire desert challenge!';
+    }
     
     // Generate confetti
     generateConfetti();
@@ -438,8 +575,10 @@ function showWinScreen() {
 }
 
 function showGameOverScreen() {
-    // Update game over screen
-    const timeSurvived = 60 - gameState.timeLeft;
+    // Update game over screen for death
+    document.getElementById('game-over-title').textContent = 'You Have Died!';
+    const settings = difficultySettings[gameState.difficulty];
+    const timeSurvived = settings.timeLimit - gameState.timeLeft;
     document.getElementById('final-score').textContent = gameState.score;
     document.getElementById('final-water').textContent = gameState.waterCollected;
     const minutes = Math.floor(timeSurvived / 60);
@@ -453,8 +592,8 @@ function generateConfetti() {
     const confettiContainer = document.querySelector('.confetti-container');
     confettiContainer.innerHTML = ''; // Clear existing confetti
     
-    // Generate 50 confetti pieces
-    for (let i = 0; i < 50; i++) {
+    // Generate 80 confetti pieces for more celebration
+    for (let i = 0; i < 80; i++) {
         const confetti = document.createElement('div');
         confetti.className = 'confetti';
         
@@ -468,17 +607,21 @@ function generateConfetti() {
         confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
         
         // Random size
-        const size = Math.random() * 8 + 6;
+        const size = Math.random() * 10 + 8;
         confetti.style.width = size + 'px';
         confetti.style.height = size + 'px';
+        
+        // Add more colors
+        const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#f39c12', '#e74c3c', '#9b59b6'];
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
         
         confettiContainer.appendChild(confetti);
     }
     
-    // Clean up confetti after 6 seconds
+    // Clean up confetti after 8 seconds
     setTimeout(() => {
         confettiContainer.innerHTML = '';
-    }, 6000);
+    }, 8000);
 }
 
 // Add responsive canvas function
@@ -523,8 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Menu buttons
     document.getElementById('start-btn').addEventListener('click', () => {
         initAudio();
-        showScreen('game');
-        initGame();
+        showScreen('difficulty');
     });
     
     document.getElementById('instructions-btn').addEventListener('click', () => {
@@ -540,8 +682,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.close();
     });
     
+    // Difficulty selection
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const difficulty = e.target.getAttribute('data-difficulty');
+            gameState.difficulty = difficulty;
+            showScreen('game');
+            initGame();
+        });
+    });
+    
     // Back to menu buttons
     document.getElementById('back-to-menu').addEventListener('click', () => {
+        showScreen('menu');
+    });
+    
+    document.getElementById('back-to-menu-difficulty').addEventListener('click', () => {
         showScreen('menu');
     });
     
@@ -551,8 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Game over buttons
     document.getElementById('restart-btn').addEventListener('click', () => {
-        showScreen('game');
-        initGame();
+        showScreen('difficulty');
     });
     
     document.getElementById('home-btn').addEventListener('click', () => {
@@ -561,8 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Win screen buttons
     document.getElementById('win-restart-btn').addEventListener('click', () => {
-        showScreen('game');
-        initGame();
+        showScreen('difficulty');
     });
     
     document.getElementById('win-home-btn').addEventListener('click', () => {
@@ -684,9 +838,8 @@ document.addEventListener('contextmenu', (e) => {
 // Initialize scores on load
 loadScores();
         
-// Start the game loop
+// Start at menu screen
 setTimeout(() => {
     initAudio();
     showScreen('menu');
-    initGame();
 }, 100);
